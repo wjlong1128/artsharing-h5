@@ -19,20 +19,32 @@ const nextConfig: NextConfig = {
       },
     ];
   },
-  async rewrites() {
-    return [
+  //  async headers() {
+  //   return [
+  //     {
+  //       source: '/h5-api/:path*',
+  //       headers: [
+  //         { key: 'Access-Control-Allow-Origin', value: '*' },
+  //         { key: 'Access-Control-Allow-Methods', value: 'GET, POST, PUT, DELETE, OPTIONS' },
+  //         { key: 'Access-Control-Allow-Headers', value: 'Content-Type, Authorization' },
+  //       ],
+  //     },
+  //   ];
+  // },
+  // async rewrites() {
+  //   return [
       
-      {
-        source: '/h5-api/:path*',  // 匹配 /h5-api/ 开头的所有路径
-        destination: 'https://artsharing.vhost.chengzhanheng.cn/:path*',  // 转发时去掉 /h5-api
-      },
-      // 如果需要处理根路径
-      {
-        source: '/h5-api',  // 匹配 /h5-api（没有后续路径）
-        destination: 'https://目标网站.com/',  // 转发到根路径
-      },
-    ];
-  },
+  //     {
+  //       source: '/h5-api/:path*',  // 匹配 /h5-api/ 开头的所有路径
+  //       destination: 'https://artsharing.vhost.chengzhanheng.cn/:path*',  // 转发时去掉 /h5-api
+  //     },
+  //     // 如果需要处理根路径
+  //     {
+  //       source: '/h5-api',  // 匹配 /h5-api（没有后续路径）
+  //       destination: 'https://artsharing.vhost.chengzhanheng.cn',  // 转发到根路径
+  //     },
+  //   ];
+  // },
 };
 
 export default nextConfig;

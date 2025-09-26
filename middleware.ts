@@ -11,9 +11,9 @@ export async function middleware(request: NextRequest) {
     return new NextResponse(null, {
       status: 200,
       headers: {
-        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Origin':'*',
         'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS, PATCH',
-        'Access-Control-Allow-Headers': '*',
+        'Access-Control-Allow-Headers':'*',
         'Access-Control-Max-Age': '86400',
       },
     });
@@ -36,33 +36,42 @@ export async function middleware(request: NextRequest) {
       body = await clonedRequest.text();
     }
 
-    // 构建转发请求的 headers
+    // 直接使用优化后的头信息（避免重复尝试）
     const headers = new Headers();
     
-    // 复制除 host 外的所有 headers
-    request.headers.forEach((value, key) => {
-      if (key.toLowerCase() !== 'host') {
-        headers.set(key, value);
+    // 必需的头信息
+    headers.set('Host', targetUrl.host);
+    headers.set('User-Agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36');
+    headers.set('Accept', 'application/json, */*');
+    
+    // 保持原有的 Content-Type
+    const contentType = request.headers.get('Content-Type') || 'application/json';
+    headers.set('Content-Type', contentType);
+    
+    // 添加 Referer 和 Origin（某些服务器需要）
+    headers.set('Referer', targetUrl.origin);
+    headers.set('Origin', targetUrl.origin);
+
+    // 复制其他可能需要的头信息（如认证信息）
+    const importantHeaders = ['Authorization', 'X-API-Key', 'X-Requested-With', 'Cookie'];
+    importantHeaders.forEach(header => {
+      const value = request.headers.get(header);
+      if (value) {
+        headers.set(header, value);
       }
     });
-    
-    // 设置正确的 host
-    headers.set('host', targetUrl.host);
-    
-    // 添加必要的头信息避免 403
-    headers.set('Referer', targetUrl.origin);
-    headers.set('User-Agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36');
-    
-    // 如果目标服务器需要特定的认证头
-    if (!headers.has('Origin')) {
-      headers.set('Origin', targetUrl.origin);
-    }
 
-    // 转发请求
+    console.log('转发请求:', {
+      method: request.method,
+      url: targetUrl.toString(),
+      headers: Object.fromEntries(headers.entries()),
+      hasBody: !!body
+    });
+
     const fetchOptions: RequestInit = {
       method: request.method,
       headers: headers,
-      redirect: 'follow', // 跟随重定向
+      redirect: 'follow',
     };
 
     if (body) {
@@ -71,23 +80,21 @@ export async function middleware(request: NextRequest) {
 
     const response = await fetch(targetUrl.toString(), fetchOptions);
 
-    // 如果还是 403，尝试不使用某些头信息
+    console.log('响应状态:', response.status, response.statusText);
+
+    // 如果是403，提供更详细的错误信息
     if (response.status === 403) {
-      console.log('第一次请求返回 403，尝试简化头信息...');
+      const responseText = await response.text();
+      console.error('403 错误详情:', responseText);
       
-      // 简化头信息重新尝试
-      const simpleHeaders = new Headers();
-      simpleHeaders.set('Content-Type', headers.get('Content-Type') || 'application/json');
-      simpleHeaders.set('Accept', 'application/json, */*');
-      
-      const retryResponse = await fetch(targetUrl.toString(), {
-        ...fetchOptions,
-        headers: simpleHeaders,
-      });
-      
-      if (retryResponse.ok) {
-        return createResponse(retryResponse);
-      }
+      return NextResponse.json(
+        { 
+          error: '目标服务器拒绝访问(403)',
+          details: '可能是IP限制或认证问题',
+          serverResponse: responseText.slice(0, 500) // 只返回前500字符
+        },
+        { status: 403 }
+      );
     }
 
     return createResponse(response);
@@ -101,7 +108,6 @@ export async function middleware(request: NextRequest) {
   }
 }
 
-// 创建响应的辅助函数
 function createResponse(response: Response): NextResponse {
   const nextResponse = new NextResponse(response.body, {
     status: response.status,

@@ -1,0 +1,1 @@
+import{_ as t,c as s,a,b as o}from"./index-B5aEYo_O.js";const c={},n={class:"container"};function r(_,e){return a(),s("div",n,[...e[0]||(e[0]=[o("h2",null,"用户协议",-1),o("p",null,"这里展示用户协议内容。后续可从服务端获取渲染。",-1)])])}const d=t(c,[["render",r],["__scopeId","data-v-1f468a49"]]);export{d as default};

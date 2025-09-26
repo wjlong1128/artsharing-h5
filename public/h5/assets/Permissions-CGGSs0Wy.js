@@ -1,0 +1,1 @@
+import{_ as l,c as n,a as t,b as e}from"./index-CyFXM-3y.js";const o={},a={class:"container"};function c(r,s){return t(),n("div",a,[...s[0]||(s[0]=[e("h2",null,"用户权限",-1),e("ul",{class:"list"},[e("li",null,"游客：浏览公开内容"),e("li",null,"学生：更多浏览权限"),e("li",null,"老师：可下载教学资源")],-1)])])}const d=l(o,[["render",c],["__scopeId","data-v-dbeded02"]]);export{d as default};

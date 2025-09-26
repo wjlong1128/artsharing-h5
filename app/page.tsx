@@ -2,7 +2,6 @@
 import { Button } from "@/components/ui/button";
 import { AspectRatio } from "@radix-ui/react-aspect-ratio";
 import Image from "next/image";
-import { useRouter } from "next/router";
 export default function Home() {
 
   return (

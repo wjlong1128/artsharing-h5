@@ -1,0 +1,1 @@
+import{_ as o,c as s,a as n,b as t}from"./index-BZdzaspv.js";const a={},c={class:"container"};function r(l,e){return n(),s("div",c,[...e[0]||(e[0]=[t("h2",null,"关于我们",-1),t("p",null,"Art hill 艺术素材共享，一个免费的开放式美术素材共享资源中心。",-1)])])}const d=o(a,[["render",r],["__scopeId","data-v-51d57bf9"]]);export{d as default};
